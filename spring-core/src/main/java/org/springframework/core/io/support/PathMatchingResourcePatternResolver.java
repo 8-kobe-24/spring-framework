@@ -200,9 +200,14 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
 		}
 	}
 
-
+	/**
+	 * 内置的 ResourceLoader 资源定位器
+	 */
 	private final ResourceLoader resourceLoader;
 
+	/**
+	 * Ant 路径匹配器
+	 */
 	private PathMatcher pathMatcher = new AntPathMatcher();
 
 
@@ -277,17 +282,18 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
 	@Override
 	public Resource[] getResources(String locationPattern) throws IOException {
 		Assert.notNull(locationPattern, "Location pattern must not be null");
+		// 以 "classpath*:" 开头
 		if (locationPattern.startsWith(CLASSPATH_ALL_URL_PREFIX)) {
-			// a class path resource (multiple resources for same name possible)
+			// 路径包含通配符
 			if (getPathMatcher().isPattern(locationPattern.substring(CLASSPATH_ALL_URL_PREFIX.length()))) {
-				// a class path resource pattern
 				return findPathMatchingResources(locationPattern);
 			}
+			// 路径不包含通配符
 			else {
-				// all class path resources with the given name
 				return findAllClassPathResources(locationPattern.substring(CLASSPATH_ALL_URL_PREFIX.length()));
 			}
 		}
+		// 不以 "classpath*:" 开头
 		else {
 			// Generally only look for a pattern after a prefix here,
 			// and on Tomcat only after the "*/" separator for its "war:" protocol.
